@@ -29,7 +29,7 @@ import urllib
 
 
 
-__author__ = 'aje'
+__author__ = 'akgarhwal'
 
 
 # General Discussion on structure. This program implements a blog. This file is the best place to start to get
