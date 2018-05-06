@@ -50,84 +50,13 @@ def send_static(filename):
     return bottle.static_file(filename, root='./static/')
 
 
-
-
-
-#Code-Forces data scrapping
-def codeforces_data_scrap(handle):
-    submission_url = 'http://codeforces.com/submissions/'  
-
-
-    r = urllib.urlopen(submission_url+handle).read()
-    soup = BeautifulSoup(r,"lxml")
-    #print type(soup)
-
-    #Finding total no of submission page
-    pageno = soup.find_all("div",class_="pagination")
-
-
-    ind=1
-    numPage=1
-    if len(pageno) != 1:
-        ind = 0;
-        pageno = pageno[1].find("ul")
-        pageno = pageno.find_all("li")
-        numPage =  int(pageno[-2].get_text())
-    page_url = '/page/'
-
-
-
-    for i in range(1,numPage+1):
-        url = submission_url+handle+page_url+str(i)
-        print url
-
-        r = urllib.urlopen(url).read()
-        soup = BeautifulSoup(r,"lxml")
-
-        datatable = soup.find_all("table", class_="status-frame-datatable")
-        #print len(datatable)
-
-        TR =  datatable[0].find_all("tr")
-        TR = TR[1:]
-        #print TR[1]
-        print "TOtal Submission : "+str(len(TR))
-        codeforces_data =  "\"Code-Forces\" : [\n\t"
-        for tr in TR :
-            submission_link = tr.find("td",class_="id-cell");
-            submission_link = submission_link.a["href"]
-            
-            problem_name_link = tr.find_all("td",class_="status-small")
-            problem_name_link = problem_name_link[1]
-            problem_link = (problem_name_link.a["href"]).strip()
-            problem_name = (problem_name_link.find("a").get_text()).strip()
-            
-            submission_id_verdict = tr.find("td",class_="status-cell status-small status-verdict-cell")
-            submission_id_verdict = submission_id_verdict.find_all("span")
-            submission_id = submission_id_verdict[0]["submissionid"]
-            submission_verdict = submission_id_verdict[0]["submissionverdict"]
-            codeforces_data+= "\t{ \"submission_link\" : \"" +submission_link +"\",\n\t  \"submission_id\" : \"" + submission_id + "\",\n\t  \"submission_verdict\" : \"" + submission_verdict + "\",\n\t  \"problem_name\" : \"" + problem_name+ "\",\n\t  \"problem_link\" : \"" + problem_link+"\"\n\t}"
-            codeforces_data += "\n"
-
-
-    codeforces_data += "]"
-    return codeforces_data
-
-
-
-
-
-
-
 # This route is the main page of the blog
 @bottle.route('/')
 def blog_index():
 
     cookie = bottle.request.get_cookie("session")
-
     username = sessions.get_username(cookie)
-
     # todo: this is not yet implemented at this point in the course
-
     return bottle.template('blog_template', dict(username=username))
 
 
